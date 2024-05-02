@@ -1,22 +1,13 @@
 import { supabase } from '@/src/lib/supabase'
-import { Session } from '@supabase/supabase-js'
+import { useAuth } from '@/src/providers/AuthProvider'
 import { Redirect, Stack } from 'expo-router'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { AppState } from 'react-native'
 
 export default function AuthLayout() {
-
-    const [session, setSession] = useState<Session | null>(null)
+    const { isAuthenticated } = useAuth()
 
     useEffect(() => {
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            setSession(session)
-        })
-
-        supabase.auth.onAuthStateChange((_event, session) => {
-            setSession(session)
-        })
-
         const subscription = AppState.addEventListener('change', (state) => {
             if (state === 'active') {
                 supabase.auth.startAutoRefresh()
@@ -30,7 +21,7 @@ export default function AuthLayout() {
         }
     }, [])
 
-    if (session && session.user) {
+    if (isAuthenticated) {
         return <Redirect href="/(tabs)/home" />
     } else {
         return (

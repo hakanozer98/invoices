@@ -1,24 +1,12 @@
-import { supabase } from '@/src/lib/supabase';
+import { useAuth } from '@/src/providers/AuthProvider';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
-import { Session } from '@supabase/supabase-js';
 import { Redirect, Tabs } from 'expo-router';
-import { useEffect, useState } from 'react';
 
 export default function TabLayout() {
-  const [session, setSession] = useState<Session | null>(null)
+  const { isAuthenticated } = useAuth();
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-        setSession(session)
-    })
-
-    supabase.auth.onAuthStateChange((_event, session) => {
-        setSession(session)
-    })
-  }, [])
-
-  if (!session || !session.user) {
+  if (!isAuthenticated) {
     return <Redirect href="/(auth)/signIn" />
   }
 

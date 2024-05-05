@@ -1,4 +1,3 @@
-
 import { StyleSheet, View, Pressable, Text } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { useState } from 'react';
@@ -7,14 +6,19 @@ import Animated, { SlideInRight, SlideOutRight } from 'react-native-reanimated';
 interface FabProps {
     onTakePhoto: () => void;
     onPickImage: () => void;
+    onManualAdd: () => void;
 }
 
-export default function Fab({ onTakePhoto, onPickImage }: FabProps) {
+export default function Fab({ onTakePhoto, onPickImage, onManualAdd }: FabProps) {
     const [isFabOpen, setIsFabOpen] = useState(false);
 
     const FabMenu = () => {
         return (
             <Animated.View entering={SlideInRight} exiting={SlideOutRight} style={styles.fabMenu}>
+                <Pressable style={styles.fabOption} onPress={onManualAdd}>
+                    <AntDesign name="form" size={24} color="white" />
+                    <Text style={styles.fabText}>Manual</Text>
+                </Pressable>
                 <Pressable style={styles.fabOption} onPress={onTakePhoto}>
                     <AntDesign name="camera" size={24} color="white" />
                     <Text style={styles.fabText}>Take Photo</Text>

@@ -1,8 +1,8 @@
 import analyzeDocument from "@/src/lib/scanInvoice";
-import { useState } from "react";
 import { Text, View, StyleSheet } from "react-native";
 import * as ImagePicker from 'expo-image-picker';
 import Fab from '@/src/components/Fab';
+import { router } from "expo-router";
 
 export default function Home() {
   const pickImage = async () => {
@@ -32,16 +32,20 @@ export default function Home() {
     try {
       const result = await analyzeDocument(base64Image);
       console.log(JSON.stringify(result, null, 2));
-      console.log("Document analysis succeeded");
+      router.navigate({ pathname: "/add-invoice", params: { invoiceData: JSON.stringify(result) } });
     } catch (error) {
       console.error("Document analysis failed", error);
     }
   };
 
+  const handleManualAdd = () => {
+    router.navigate("/add-invoice");
+  };
+
   return (
     <View style={styles.container}>
       <Text>Home Page</Text>
-      <Fab onTakePhoto={takePhoto} onPickImage={pickImage} />
+      <Fab onTakePhoto={takePhoto} onPickImage={pickImage} onManualAdd={handleManualAdd}/>
     </View>
   );
 }

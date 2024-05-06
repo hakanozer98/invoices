@@ -2,20 +2,20 @@ export interface InvoiceItem {
     description: string;
     quantity: number;
     unit: string;
-    unitPrice: number;
+    unit_price: number;
 }
 
 export interface Invoice {
-    invoiceId: string;
-    invoiceDate: Date;
-    dueDate: Date;
-    vendorName: string;
-    vendorAddress: string;
-    customerName: string;
-    customerAddress: string;
-    subTotal: number;
-    totalTax: number;
-    invoiceTotal: number;
+    invoice_id: string;
+    invoice_date: Date;
+    due_date: Date;
+    vendor_name: string;
+    vendor_address: string;
+    customer_name: string;
+    customer_address: string;
+    sub_total: number;
+    tax: number;
+    total: number;
     currency: string;
     items: InvoiceItem[];
 }

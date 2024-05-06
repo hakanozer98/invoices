@@ -66,7 +66,7 @@ export default async function analyzeDocument(base64: string) {
             description: item.valueObject?.Description?.valueString,
             quantity: item.valueObject?.Quantity?.valueNumber,
             unit: item.valueObject?.Unit?.valueString,
-            unitPrice: item.valueObject?.UnitPrice?.valueCurrency?.amount
+            unit_price: item.valueObject?.UnitPrice?.valueCurrency?.amount
         }))
     };
 

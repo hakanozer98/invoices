@@ -5,16 +5,18 @@ import { View, Text, TextInput, ScrollView, TouchableOpacity, StyleSheet, Modal 
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Invoice, InvoiceItem } from '../types/Invoice';
 import { MaterialIcons } from '@expo/vector-icons';  // Add this import
+import { currencies } from '../data/currencies';
+import CurrencyModal from '../components/CurrencyModal';
 
 // Add these functions after the imports and before the component
 const validateInvoice = (invoice: Invoice) => {
     const errors: Record<string, string> = {};
     
-    if (!invoice.invoiceId.trim()) errors.invoiceId = 'Invoice ID is required';
-    if (!invoice.vendorName.trim()) errors.vendorName = 'Vendor name is required';
-    if (!invoice.customerName.trim()) errors.customerName = 'Customer name is required';
+    if (!invoice.invoice_id.trim()) errors.invoiceId = 'Invoice ID is required';
+    if (!invoice.vendor_name.trim()) errors.vendorName = 'Vendor name is required';
+    if (!invoice.customer_name.trim()) errors.customerName = 'Customer name is required';
     if (invoice.items.length === 0) errors.items = 'At least one item is required';
-    if (invoice.invoiceTotal <= 0) errors.total = 'Invoice total must be greater than 0';
+    if (invoice.total <= 0) errors.total = 'Invoice total must be greater than 0';
     
     return errors;
 };
@@ -24,16 +26,16 @@ export default function AddInvoice() {
     const parsedInvoiceData = invoiceData ? JSON.parse(invoiceData as string) : null;
 
     const [invoice, setInvoice] = useState<Invoice>({
-        invoiceId: parsedInvoiceData?.invoiceId || '',
-        invoiceDate: parsedInvoiceData?.invoiceDate ? new Date(parsedInvoiceData.invoiceDate) : new Date(),
-        dueDate: parsedInvoiceData?.dueDate ? new Date(parsedInvoiceData.dueDate) : new Date(),
-        vendorName: parsedInvoiceData?.vendorName || 'Vendor Name',
-        vendorAddress: parsedInvoiceData?.vendorAddress || '',
-        customerName: parsedInvoiceData?.customerName || 'Customer Name',
-        customerAddress: parsedInvoiceData?.customerAddress || '',
-        subTotal: parsedInvoiceData?.subTotal || 0,
-        totalTax: parsedInvoiceData?.totalTax || 0,
-        invoiceTotal: parsedInvoiceData?.invoiceTotal || 0,
+        invoice_id: parsedInvoiceData?.invoiceId || '',
+        invoice_date: parsedInvoiceData?.invoiceDate ? new Date(parsedInvoiceData.invoiceDate) : new Date(),
+        due_date: parsedInvoiceData?.dueDate ? new Date(parsedInvoiceData.dueDate) : new Date(),
+        vendor_name: parsedInvoiceData?.vendorName || '',
+        vendor_address: parsedInvoiceData?.vendorAddress || '',
+        customer_name: parsedInvoiceData?.customerName || '',
+        customer_address: parsedInvoiceData?.customerAddress || '',
+        sub_total: parsedInvoiceData?.subTotal || 0,
+        tax: parsedInvoiceData?.totalTax || 0,
+        total: parsedInvoiceData?.invoiceTotal || 0,
         currency: parsedInvoiceData?.currency || 'USD',
         items: parsedInvoiceData?.items || []
     });
@@ -55,6 +57,8 @@ export default function AddInvoice() {
     const [showInvoiceDatePicker, setShowInvoiceDatePicker] = useState(false);
     const [showDueDatePicker, setShowDueDatePicker] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const [selectedCurrency, setSelectedCurrency] = useState(invoice.currency);
+    const [showCurrencyModal, setShowCurrencyModal] = useState(false);
 
     const handleInputChange = (name: string, value: string) => {
         setInvoice(prev => ({
@@ -72,19 +76,20 @@ export default function AddInvoice() {
             description: currentItem.description,
             quantity: Number(currentItem.quantity) || 0,
             unit: currentItem.unit,
-            unitPrice: Number(currentItem.unitPrice) || 0
+            unit_price: Number(currentItem.unitPrice) || 0
         }];
         setItems(newItems);
         
         // Recalculate totals
-        const subTotal = newItems.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
-        const totalTax = subTotal * 0.1;
+        const sub_total = newItems.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0);
+        const tax = sub_total * 0.1;
+        const total = sub_total + tax;
         setInvoice(prev => ({
             ...prev,
             items: newItems,
-            subTotal,
-            totalTax,
-            invoiceTotal: subTotal + totalTax
+            sub_total,
+            tax,
+            total
         }));
 
         setCurrentItem({
@@ -101,14 +106,15 @@ export default function AddInvoice() {
         setItems(newItems);
         
         // Recalculate totals
-        const subTotal = newItems.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
-        const totalTax = subTotal * 0.1;
+        const sub_total = newItems.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0);
+        const tax = sub_total * 0.1;
+        const total = sub_total + tax;
         setInvoice(prev => ({
             ...prev,
             items: newItems,
-            subTotal,
-            totalTax,
-            invoiceTotal: subTotal + totalTax
+            sub_total,
+            tax,
+            total
         }));
     };
 
@@ -121,14 +127,15 @@ export default function AddInvoice() {
         setItems(newItems);
         
         // Recalculate totals
-        const subTotal = newItems.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
-        const totalTax = subTotal * 0.1; // Assuming 10% tax
+        const sub_total = newItems.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0);
+        const tax = sub_total * 0.1; // Assuming 10% tax
+        const total = sub_total + tax;
         setInvoice(prev => ({
             ...prev,
             items: newItems,
-            subTotal,
-            totalTax,
-            invoiceTotal: subTotal + totalTax
+            sub_total,
+            tax,
+            total
         }));
     };
 
@@ -166,17 +173,17 @@ export default function AddInvoice() {
             const { data: insertedInvoice, error: invoiceError } = await supabase
                 .from('invoices')
                 .insert([{
-                    invoice_id: invoice.invoiceId,
-                    invoice_date: invoice.invoiceDate.toISOString(),
-                    due_date: invoice.dueDate.toISOString(),
-                    //vendor_name: invoice.vendorName,
-                    //vendor_address: invoice.vendorAddress,
-                    //customer_name: invoice.customerName,
-                    //customer_address: invoice.customerAddress,
-                    sub_total: invoice.subTotal,
-                    tax: invoice.totalTax,
-                    total: invoice.invoiceTotal,
-                    //currency: invoice.currency
+                    invoice_id: invoice.invoice_id,
+                    invoice_date: invoice.invoice_date.toISOString(),
+                    due_date: invoice.due_date.toISOString(),
+                    vendor_name: invoice.vendor_name,
+                    vendor_address: invoice.vendor_address,
+                    customer_name: invoice.customer_name,
+                    customer_address: invoice.customer_address,
+                    sub_total: invoice.sub_total,
+                    tax: invoice.tax,
+                    total: invoice.total,
+                    currency: invoice.currency
                 }])
                 .select()
                 .single();
@@ -192,7 +199,7 @@ export default function AddInvoice() {
                         description: item.description,
                         quantity: item.quantity,
                         unit: item.unit,
-                        unit_price: item.unitPrice,
+                        unit_price: item.unit_price,
                     }))
                 );
 
@@ -218,12 +225,94 @@ export default function AddInvoice() {
                             errors.invoiceId && styles.inputError
                         ]}
                         placeholder="Invoice ID"
-                        value={invoice.invoiceId}
+                        value={invoice.invoice_id}
                         onChangeText={(value) => handleInputChange('invoiceId', value)}
                     />
                     {errors.invoiceId && (
                         <Text style={styles.errorText}>{errors.invoiceId}</Text>
                     )}
+                </View>
+
+                <View style={styles.inputGroup}>
+                    <Text style={styles.label}>Currency</Text>
+                    <TouchableOpacity 
+                        style={styles.currencySelector}
+                        onPress={() => setShowCurrencyModal(true)}
+                    >
+                        <Text>
+                            {selectedCurrency} ({currencies.find(c => c.code === selectedCurrency)?.symbol})
+                        </Text>
+                    </TouchableOpacity>
+                    <CurrencyModal
+                        visible={showCurrencyModal}
+                        currencies={currencies}
+                        selectedCurrency={selectedCurrency}
+                        onSelect={(currency) => {
+                            setSelectedCurrency(currency.code);
+                            handleInputChange('currency', currency.code);
+                        }}
+                        onClose={() => setShowCurrencyModal(false)}
+                    />
+                </View>
+
+                <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>Vendor Information</Text>
+                    <View style={styles.inputGroup}>
+                        <Text style={styles.label}>Vendor Name</Text>
+                        <TextInput
+                            style={[
+                                styles.fullWidthInput,
+                                errors.vendorName && styles.inputError
+                            ]}
+                            placeholder="Vendor Name"
+                            value={invoice.vendor_name}
+                            onChangeText={(value) => handleInputChange('vendorName', value)}
+                        />
+                        {errors.vendorName && (
+                            <Text style={styles.errorText}>{errors.vendorName}</Text>
+                        )}
+                    </View>
+                    <View style={styles.inputGroup}>
+                        <Text style={styles.label}>Vendor Address (Optional)</Text>
+                        <TextInput
+                            style={styles.fullWidthInput}
+                            placeholder="Vendor Address"
+                            value={invoice.vendor_address}
+                            onChangeText={(value) => handleInputChange('vendorAddress', value)}
+                            multiline
+                            numberOfLines={2}
+                        />
+                    </View>
+                </View>
+
+                <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>Customer Information</Text>
+                    <View style={styles.inputGroup}>
+                        <Text style={styles.label}>Customer Name</Text>
+                        <TextInput
+                            style={[
+                                styles.fullWidthInput,
+                                errors.customerName && styles.inputError
+                            ]}
+                            placeholder="Customer Name"
+                            value={invoice.customer_name}
+                            onChangeText={(value) => handleInputChange('customerName', value)}
+                        />
+                        {errors.customerName && (
+                            <Text style={styles.errorText}>{errors.customerName}</Text>
+                        )}
+                    </View>
+                    <View style={styles.inputGroup}>
+                        <Text style={styles.label}>Customer Address (Optional)</Text>
+                        <TextInput
+                            style={styles.fullWidthInput}
+                            placeholder="Customer Address"
+                            value={invoice.customer_address}
+                            onChangeText={(value) => handleInputChange('customerAddress', value)}
+                            multiline
+                            numberOfLines={2}
+                        />
+                    </View>
                 </View>
 
                 <View style={styles.grid}>
@@ -233,7 +322,7 @@ export default function AddInvoice() {
                             style={styles.input} 
                             onPress={() => setShowInvoiceDatePicker(true)}
                         >
-                            <Text>{invoice.invoiceDate.toLocaleDateString()}</Text>
+                            <Text>{invoice.invoice_date.toLocaleDateString()}</Text>
                         </TouchableOpacity>
                     </View>
 
@@ -243,14 +332,14 @@ export default function AddInvoice() {
                             style={styles.input} 
                             onPress={() => setShowDueDatePicker(true)}
                         >
-                            <Text>{invoice.dueDate.toLocaleDateString()}</Text>
+                            <Text>{invoice.due_date.toLocaleDateString()}</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
                 
                 {showInvoiceDatePicker && (
                     <DateTimePicker
-                        value={invoice.invoiceDate}
+                        value={invoice.invoice_date}
                         mode="date"
                         onChange={onInvoiceDateChange}
                     />
@@ -258,7 +347,7 @@ export default function AddInvoice() {
 
                 {showDueDatePicker && (
                     <DateTimePicker
-                        value={invoice.dueDate}
+                        value={invoice.due_date}
                         mode="date"
                         onChange={onDueDateChange}
                     />
@@ -297,11 +386,11 @@ export default function AddInvoice() {
                                 </View>
                                 <View style={styles.itemDetail}>
                                     <Text style={styles.detailLabel}>Unit Price</Text>
-                                    <Text style={styles.detailValue}>${item.unitPrice}</Text>
+                                    <Text style={styles.detailValue}>{invoice.currency} {item.unit_price}</Text>
                                 </View>
                                 <View style={styles.itemDetail}>
                                     <Text style={styles.detailLabel}>Total</Text>
-                                    <Text style={styles.detailValue}>${item.quantity * item.unitPrice}</Text>
+                                    <Text style={styles.detailValue}>{invoice.currency} {item.quantity * item.unit_price}</Text>
                                 </View>
                             </View>
                         </View>
@@ -361,9 +450,9 @@ export default function AddInvoice() {
                 </Modal>
 
                 <View style={styles.totals}>
-                    <Text>Subtotal: {invoice.subTotal}</Text>
-                    <Text>Tax: {invoice.totalTax}</Text>
-                    <Text>Total: {invoice.invoiceTotal}</Text>
+                    <Text>Subtotal: {invoice.sub_total}</Text>
+                    <Text>Tax: {invoice.tax}</Text>
+                    <Text>Total: {invoice.total}</Text>
                 </View>
 
                 {errors.submit && (
@@ -584,5 +673,51 @@ const styles = StyleSheet.create({
         color: '#ef4444',
         fontSize: 12,
         marginTop: 4,
+    },
+    pickerContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 8,
+        marginTop: 4,
+    },
+    currencyOption: {
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 16,
+        backgroundColor: '#f3f4f6',
+        borderWidth: 1,
+        borderColor: '#e5e7eb',
+    },
+    selectedCurrency: {
+        backgroundColor: '#3b82f6',
+        borderColor: '#3b82f6',
+    },
+    currencyText: {
+        color: '#374151',
+        fontSize: 14,
+    },
+    selectedCurrencyText: {
+        color: '#ffffff',
+    },
+    currencySelector: {
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 4,
+        padding: 12,
+        marginTop: 4,
+    },
+    section: {
+        gap: 12,
+        backgroundColor: '#f9fafb',
+        padding: 16,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: '#e5e7eb',
+    },
+    sectionTitle: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#374151',
+        marginBottom: 4,
     },
 });

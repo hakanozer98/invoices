@@ -1,14 +1,15 @@
 import { Stack } from 'expo-router/stack';
 import AuthProvider from '../providers/AuthProvider';
 import { PropsWithChildren } from 'react';
-import { StatusBar, View } from 'react-native';
+import { View } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 
 export default function Layout() {
 
   const RootView = ({ children }: PropsWithChildren) => {
     return (
       <View style={{ flex: 1 }}>
-        <StatusBar barStyle="dark-content" />
+        <StatusBar backgroundColor='#6366f1' style='light' />
         {children}
       </View>
     );

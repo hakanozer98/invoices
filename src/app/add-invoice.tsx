@@ -7,17 +7,18 @@ import { Invoice, InvoiceItem } from '../types/Invoice';
 import { MaterialIcons } from '@expo/vector-icons';  // Add this import
 import { currencies } from '../data/currencies';
 import CurrencyModal from '../components/CurrencyModal';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Add these functions after the imports and before the component
 const validateInvoice = (invoice: Invoice) => {
     const errors: Record<string, string> = {};
-    
+
     if (!invoice.invoice_id.trim()) errors.invoiceId = 'Invoice ID is required';
     if (!invoice.vendor_name.trim()) errors.vendorName = 'Vendor name is required';
     if (!invoice.customer_name.trim()) errors.customerName = 'Customer name is required';
     if (invoice.items.length === 0) errors.items = 'At least one item is required';
     if (invoice.total <= 0) errors.total = 'Invoice total must be greater than 0';
-    
+
     return errors;
 };
 
@@ -79,7 +80,7 @@ export default function AddInvoice() {
             unit_price: Number(currentItem.unitPrice) || 0
         }];
         setItems(newItems);
-        
+
         // Recalculate totals
         const sub_total = newItems.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0);
         const tax = sub_total * 0.1;
@@ -104,7 +105,7 @@ export default function AddInvoice() {
     const handleDeleteItem = (index: number) => {
         const newItems = items.filter((_, i) => i !== index);
         setItems(newItems);
-        
+
         // Recalculate totals
         const sub_total = newItems.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0);
         const tax = sub_total * 0.1;
@@ -125,7 +126,7 @@ export default function AddInvoice() {
             [field]: value
         };
         setItems(newItems);
-        
+
         // Recalculate totals
         const sub_total = newItems.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0);
         const tax = sub_total * 0.1; // Assuming 10% tax
@@ -214,259 +215,264 @@ export default function AddInvoice() {
     };
 
     return (
-        <ScrollView style={styles.container}>
-            <Text style={styles.title}>Add New Invoice</Text>
-            <View style={styles.form}>
-                <View style={styles.inputGroup}>
-                    <Text style={styles.label}>Invoice ID</Text>
-                    <TextInput
-                        style={[
-                            styles.fullWidthInput,
-                            errors.invoiceId && styles.inputError
-                        ]}
-                        placeholder="Invoice ID"
-                        value={invoice.invoice_id}
-                        onChangeText={(value) => handleInputChange('invoiceId', value)}
-                    />
-                    {errors.invoiceId && (
-                        <Text style={styles.errorText}>{errors.invoiceId}</Text>
-                    )}
-                </View>
-
-                <View style={styles.inputGroup}>
-                    <Text style={styles.label}>Currency</Text>
-                    <TouchableOpacity 
-                        style={styles.currencySelector}
-                        onPress={() => setShowCurrencyModal(true)}
-                    >
-                        <Text>
-                            {selectedCurrency} ({currencies.find(c => c.code === selectedCurrency)?.symbol})
-                        </Text>
-                    </TouchableOpacity>
-                    <CurrencyModal
-                        visible={showCurrencyModal}
-                        currencies={currencies}
-                        selectedCurrency={selectedCurrency}
-                        onSelect={(currency) => {
-                            setSelectedCurrency(currency.code);
-                            handleInputChange('currency', currency.code);
-                        }}
-                        onClose={() => setShowCurrencyModal(false)}
-                    />
-                </View>
-
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Vendor Information</Text>
+        <SafeAreaView style={styles.safeArea}>
+            <ScrollView style={styles.container}>
+                <Text style={styles.title}>Add New Invoice</Text>
+                <View style={styles.form}>
                     <View style={styles.inputGroup}>
-                        <Text style={styles.label}>Vendor Name</Text>
+                        <Text style={styles.label}>Invoice ID</Text>
                         <TextInput
                             style={[
                                 styles.fullWidthInput,
-                                errors.vendorName && styles.inputError
+                                errors.invoiceId && styles.inputError
                             ]}
-                            placeholder="Vendor Name"
-                            value={invoice.vendor_name}
-                            onChangeText={(value) => handleInputChange('vendorName', value)}
+                            placeholder="Invoice ID"
+                            value={invoice.invoice_id}
+                            onChangeText={(value) => handleInputChange('invoiceId', value)}
                         />
-                        {errors.vendorName && (
-                            <Text style={styles.errorText}>{errors.vendorName}</Text>
+                        {errors.invoiceId && (
+                            <Text style={styles.errorText}>{errors.invoiceId}</Text>
                         )}
                     </View>
-                    <View style={styles.inputGroup}>
-                        <Text style={styles.label}>Vendor Address (Optional)</Text>
-                        <TextInput
-                            style={styles.fullWidthInput}
-                            placeholder="Vendor Address"
-                            value={invoice.vendor_address}
-                            onChangeText={(value) => handleInputChange('vendorAddress', value)}
-                            multiline
-                            numberOfLines={2}
-                        />
-                    </View>
-                </View>
 
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Customer Information</Text>
                     <View style={styles.inputGroup}>
-                        <Text style={styles.label}>Customer Name</Text>
-                        <TextInput
-                            style={[
-                                styles.fullWidthInput,
-                                errors.customerName && styles.inputError
-                            ]}
-                            placeholder="Customer Name"
-                            value={invoice.customer_name}
-                            onChangeText={(value) => handleInputChange('customerName', value)}
-                        />
-                        {errors.customerName && (
-                            <Text style={styles.errorText}>{errors.customerName}</Text>
-                        )}
-                    </View>
-                    <View style={styles.inputGroup}>
-                        <Text style={styles.label}>Customer Address (Optional)</Text>
-                        <TextInput
-                            style={styles.fullWidthInput}
-                            placeholder="Customer Address"
-                            value={invoice.customer_address}
-                            onChangeText={(value) => handleInputChange('customerAddress', value)}
-                            multiline
-                            numberOfLines={2}
-                        />
-                    </View>
-                </View>
-
-                <View style={styles.grid}>
-                    <View style={styles.inputGroup}>
-                        <Text style={styles.label}>Invoice Date</Text>
-                        <TouchableOpacity 
-                            style={styles.input} 
-                            onPress={() => setShowInvoiceDatePicker(true)}
+                        <Text style={styles.label}>Currency</Text>
+                        <TouchableOpacity
+                            style={styles.currencySelector}
+                            onPress={() => setShowCurrencyModal(true)}
                         >
-                            <Text>{invoice.invoice_date.toLocaleDateString()}</Text>
+                            <Text>
+                                {selectedCurrency} ({currencies.find(c => c.code === selectedCurrency)?.symbol})
+                            </Text>
                         </TouchableOpacity>
+                        <CurrencyModal
+                            visible={showCurrencyModal}
+                            currencies={currencies}
+                            selectedCurrency={selectedCurrency}
+                            onSelect={(currency) => {
+                                setSelectedCurrency(currency.code);
+                                handleInputChange('currency', currency.code);
+                            }}
+                            onClose={() => setShowCurrencyModal(false)}
+                        />
                     </View>
 
-                    <View style={styles.inputGroup}>
-                        <Text style={styles.label}>Due Date</Text>
-                        <TouchableOpacity 
-                            style={styles.input} 
-                            onPress={() => setShowDueDatePicker(true)}
-                        >
-                            <Text>{invoice.due_date.toLocaleDateString()}</Text>
-                        </TouchableOpacity>
+                    <View style={styles.section}>
+                        <Text style={styles.sectionTitle}>Vendor Information</Text>
+                        <View style={styles.inputGroup}>
+                            <Text style={styles.label}>Vendor Name</Text>
+                            <TextInput
+                                style={[
+                                    styles.fullWidthInput,
+                                    errors.vendorName && styles.inputError
+                                ]}
+                                placeholder="Vendor Name"
+                                value={invoice.vendor_name}
+                                onChangeText={(value) => handleInputChange('vendorName', value)}
+                            />
+                            {errors.vendorName && (
+                                <Text style={styles.errorText}>{errors.vendorName}</Text>
+                            )}
+                        </View>
+                        <View style={styles.inputGroup}>
+                            <Text style={styles.label}>Vendor Address (Optional)</Text>
+                            <TextInput
+                                style={styles.fullWidthInput}
+                                placeholder="Vendor Address"
+                                value={invoice.vendor_address}
+                                onChangeText={(value) => handleInputChange('vendorAddress', value)}
+                                multiline
+                                numberOfLines={2}
+                            />
+                        </View>
                     </View>
-                </View>
-                
-                {showInvoiceDatePicker && (
-                    <DateTimePicker
-                        value={invoice.invoice_date}
-                        mode="date"
-                        onChange={onInvoiceDateChange}
-                    />
-                )}
 
-                {showDueDatePicker && (
-                    <DateTimePicker
-                        value={invoice.due_date}
-                        mode="date"
-                        onChange={onDueDateChange}
-                    />
-                )}
+                    <View style={styles.section}>
+                        <Text style={styles.sectionTitle}>Customer Information</Text>
+                        <View style={styles.inputGroup}>
+                            <Text style={styles.label}>Customer Name</Text>
+                            <TextInput
+                                style={[
+                                    styles.fullWidthInput,
+                                    errors.customerName && styles.inputError
+                                ]}
+                                placeholder="Customer Name"
+                                value={invoice.customer_name}
+                                onChangeText={(value) => handleInputChange('customerName', value)}
+                            />
+                            {errors.customerName && (
+                                <Text style={styles.errorText}>{errors.customerName}</Text>
+                            )}
+                        </View>
+                        <View style={styles.inputGroup}>
+                            <Text style={styles.label}>Customer Address (Optional)</Text>
+                            <TextInput
+                                style={styles.fullWidthInput}
+                                placeholder="Customer Address"
+                                value={invoice.customer_address}
+                                onChangeText={(value) => handleInputChange('customerAddress', value)}
+                                multiline
+                                numberOfLines={2}
+                            />
+                        </View>
+                    </View>
 
-                <View style={styles.itemsSection}>
-                    <View style={styles.itemsHeader}>
-                        <Text style={styles.subtitle}>Items</Text>
-                        <View style={styles.headerRight}>
-                            <TouchableOpacity style={styles.addButton} onPress={handleAddItem}>
-                                <MaterialIcons name="add" size={24} color="white" />
-                                <Text style={styles.buttonText}>Add Item</Text>
+                    <View style={styles.grid}>
+                        <View style={styles.inputGroup}>
+                            <Text style={styles.label}>Invoice Date</Text>
+                            <TouchableOpacity
+                                style={styles.input}
+                                onPress={() => setShowInvoiceDatePicker(true)}
+                            >
+                                <Text>{invoice.invoice_date.toLocaleDateString()}</Text>
+                            </TouchableOpacity>
+                        </View>
+
+                        <View style={styles.inputGroup}>
+                            <Text style={styles.label}>Due Date</Text>
+                            <TouchableOpacity
+                                style={styles.input}
+                                onPress={() => setShowDueDatePicker(true)}
+                            >
+                                <Text>{invoice.due_date.toLocaleDateString()}</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
 
-                    {items.map((item, index) => (
-                        <View key={index} style={styles.itemCard}>
-                            <View style={styles.itemHeader}>
-                                <Text style={styles.itemDescription}>{item.description}</Text>
-                                <TouchableOpacity 
-                                    style={styles.deleteButton}
-                                    onPress={() => handleDeleteItem(index)}
-                                >
-                                    <MaterialIcons name="delete-outline" size={24} color="#ef4444" />
-                                </TouchableOpacity>
-                            </View>
-                            <View style={styles.itemDetails}>
-                                <View style={styles.itemDetail}>
-                                    <Text style={styles.detailLabel}>Quantity</Text>
-                                    <Text style={styles.detailValue}>{item.quantity}</Text>
-                                </View>
-                                <View style={styles.itemDetail}>
-                                    <Text style={styles.detailLabel}>Unit</Text>
-                                    <Text style={styles.detailValue}>{item.unit}</Text>
-                                </View>
-                                <View style={styles.itemDetail}>
-                                    <Text style={styles.detailLabel}>Unit Price</Text>
-                                    <Text style={styles.detailValue}>{invoice.currency} {item.unit_price}</Text>
-                                </View>
-                                <View style={styles.itemDetail}>
-                                    <Text style={styles.detailLabel}>Total</Text>
-                                    <Text style={styles.detailValue}>{invoice.currency} {item.quantity * item.unit_price}</Text>
-                                </View>
-                            </View>
-                        </View>
-                    ))}
-                </View>
+                    {showInvoiceDatePicker && (
+                        <DateTimePicker
+                            value={invoice.invoice_date}
+                            mode="date"
+                            onChange={onInvoiceDateChange}
+                        />
+                    )}
 
-                <Modal
-                    visible={isModalVisible}
-                    animationType="slide"
-                    transparent={true}
-                >
-                    <View style={styles.modalContainer}>
-                        <View style={styles.modalContent}>
-                            <Text style={styles.modalTitle}>Add New Item</Text>
-                            <TextInput
-                                style={styles.modalInput}
-                                placeholder="Description"
-                                value={currentItem.description}
-                                onChangeText={(value) => setCurrentItem(prev => ({ ...prev, description: value }))}
-                            />
-                            <TextInput
-                                style={styles.modalInput}
-                                placeholder="Quantity"
-                                keyboardType="numeric"
-                                value={currentItem.quantity}
-                                onChangeText={(value) => setCurrentItem(prev => ({ ...prev, quantity: value }))}
-                            />
-                            <TextInput
-                                style={styles.modalInput}
-                                placeholder="Unit"
-                                value={currentItem.unit}
-                                onChangeText={(value) => setCurrentItem(prev => ({ ...prev, unit: value }))}
-                            />
-                            <TextInput
-                                style={styles.modalInput}
-                                placeholder="Unit Price"
-                                keyboardType="numeric"
-                                value={currentItem.unitPrice}
-                                onChangeText={(value) => setCurrentItem(prev => ({ ...prev, unitPrice: value }))}
-                            />
-                            <View style={styles.modalButtons}>
-                                <TouchableOpacity 
-                                    style={[styles.modalButton, styles.cancelButton]} 
-                                    onPress={() => setIsModalVisible(false)}
-                                >
-                                    <Text style={styles.buttonText}>Cancel</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity 
-                                    style={[styles.modalButton, styles.saveButton]} 
-                                    onPress={handleSaveItem}
-                                >
-                                    <Text style={styles.buttonText}>Save</Text>
+                    {showDueDatePicker && (
+                        <DateTimePicker
+                            value={invoice.due_date}
+                            mode="date"
+                            onChange={onDueDateChange}
+                        />
+                    )}
+
+                    <View style={styles.itemsSection}>
+                        <View style={styles.itemsHeader}>
+                            <Text style={styles.subtitle}>Items</Text>
+                            <View style={styles.headerRight}>
+                                <TouchableOpacity style={styles.addButton} onPress={handleAddItem}>
+                                    <MaterialIcons name="add" size={24} color="white" />
+                                    <Text style={styles.buttonText}>Add Item</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>
+
+                        {items.map((item, index) => (
+                            <View key={index} style={styles.itemCard}>
+                                <View style={styles.itemHeader}>
+                                    <Text style={styles.itemDescription}>{item.description}</Text>
+                                    <TouchableOpacity
+                                        style={styles.deleteButton}
+                                        onPress={() => handleDeleteItem(index)}
+                                    >
+                                        <MaterialIcons name="delete-outline" size={24} color="#ef4444" />
+                                    </TouchableOpacity>
+                                </View>
+                                <View style={styles.itemDetails}>
+                                    <View style={styles.itemDetail}>
+                                        <Text style={styles.detailLabel}>Quantity</Text>
+                                        <Text style={styles.detailValue}>{item.quantity}</Text>
+                                    </View>
+                                    <View style={styles.itemDetail}>
+                                        <Text style={styles.detailLabel}>Unit</Text>
+                                        <Text style={styles.detailValue}>{item.unit}</Text>
+                                    </View>
+                                    <View style={styles.itemDetail}>
+                                        <Text style={styles.detailLabel}>Unit Price</Text>
+                                        <Text style={styles.detailValue}>{invoice.currency} {item.unit_price}</Text>
+                                    </View>
+                                    <View style={styles.itemDetail}>
+                                        <Text style={styles.detailLabel}>Total</Text>
+                                        <Text style={styles.detailValue}>{invoice.currency} {item.quantity * item.unit_price}</Text>
+                                    </View>
+                                </View>
+                            </View>
+                        ))}
                     </View>
-                </Modal>
 
-                <View style={styles.totals}>
-                    <Text>Subtotal: {invoice.sub_total}</Text>
-                    <Text>Tax: {invoice.tax}</Text>
-                    <Text>Total: {invoice.total}</Text>
+                    <Modal
+                        visible={isModalVisible}
+                        animationType="slide"
+                        transparent={true}
+                    >
+                        <View style={styles.modalContainer}>
+                            <View style={styles.modalContent}>
+                                <Text style={styles.modalTitle}>Add New Item</Text>
+                                <TextInput
+                                    style={styles.modalInput}
+                                    placeholder="Description"
+                                    value={currentItem.description}
+                                    onChangeText={(value) => setCurrentItem(prev => ({ ...prev, description: value }))}
+                                />
+                                <TextInput
+                                    style={styles.modalInput}
+                                    placeholder="Quantity"
+                                    keyboardType="numeric"
+                                    value={currentItem.quantity}
+                                    onChangeText={(value) => setCurrentItem(prev => ({ ...prev, quantity: value }))}
+                                />
+                                <TextInput
+                                    style={styles.modalInput}
+                                    placeholder="Unit"
+                                    value={currentItem.unit}
+                                    onChangeText={(value) => setCurrentItem(prev => ({ ...prev, unit: value }))}
+                                />
+                                <TextInput
+                                    style={styles.modalInput}
+                                    placeholder="Unit Price"
+                                    keyboardType="numeric"
+                                    value={currentItem.unitPrice}
+                                    onChangeText={(value) => setCurrentItem(prev => ({ ...prev, unitPrice: value }))}
+                                />
+                                <View style={styles.modalButtons}>
+                                    <TouchableOpacity
+                                        style={[styles.modalButton, styles.cancelButton]}
+                                        onPress={() => setIsModalVisible(false)}
+                                    >
+                                        <Text style={styles.buttonText}>Cancel</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        style={[styles.modalButton, styles.saveButton]}
+                                        onPress={handleSaveItem}
+                                    >
+                                        <Text style={styles.buttonText}>Save</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        </View>
+                    </Modal>
+
+                    <View style={styles.totals}>
+                        <Text>Subtotal: {invoice.sub_total}</Text>
+                        <Text>Tax: {invoice.tax}</Text>
+                        <Text>Total: {invoice.total}</Text>
+                    </View>
+
+                    {errors.submit && (
+                        <Text style={styles.errorText}>{errors.submit}</Text>
+                    )}
+                    <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+                        <Text style={styles.buttonText}>Save Invoice</Text>
+                    </TouchableOpacity>
                 </View>
-
-                {errors.submit && (
-                    <Text style={styles.errorText}>{errors.submit}</Text>
-                )}
-                <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-                    <Text style={styles.buttonText}>Save Invoice</Text>
-                </TouchableOpacity>
-            </View>
-        </ScrollView>
+            </ScrollView>
+        </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
+    safeArea: {
+        flex: 1,
+    },
     container: {
         flex: 1,
         padding: 16,
@@ -513,7 +519,7 @@ const styles = StyleSheet.create({
         flexShrink: 0,
     },
     addButton: {
-        backgroundColor: '#3b82f6',
+        backgroundColor: '#6366f1',
         flexDirection: 'row',
         alignItems: 'center',
         padding: 8,

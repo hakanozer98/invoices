@@ -5,6 +5,7 @@ import { supabase } from "../../lib/supabase";
 import { Link } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Invoice } from "@/src/types/Invoice";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Invoices() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
@@ -72,7 +73,7 @@ export default function Invoices() {
   );
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Invoices</Text>
         <Link href="/add-invoice" asChild>
@@ -88,7 +89,7 @@ export default function Invoices() {
         renderItem={renderInvoice}
         estimatedItemSize={200}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 

@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         bottom: 16,
         right: 16,
-        backgroundColor: '#007AFF',
+        backgroundColor: '#6366f1',
         width: 56,
         height: 56,
         borderRadius: 28,
@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
         gap: 8,
     },
     fabOption: {
-        backgroundColor: '#007AFF',
+        backgroundColor: '#6366f1',
         flexDirection: 'row',
         padding: 12,
         borderRadius: 8,

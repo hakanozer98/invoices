@@ -133,7 +133,7 @@ export default function Home() {
           <Animated.View style={[styles.summaryCard, { opacity: fadeAnim }]}>
             <View style={[styles.cardContent, styles.cardSecondary]}>
               <Text style={styles.summaryLabel}>Total Amount</Text>
-              <Text style={styles.summaryValue}>€{totalAmount.toFixed(2)}</Text>
+              <Text style={styles.summaryValue}>${totalAmount.toFixed(2)}</Text>
             </View>
           </Animated.View>
         </View>
@@ -150,7 +150,7 @@ export default function Home() {
               ]}
             >
               <View style={styles.listItem}>
-                <View>
+                <View style={styles.contentColumn}>
                   <View style={styles.listItemLeft}>
                     <View style={styles.dotIndicator} />
                     <Text style={styles.invoiceId}>#{invoice.invoice_id}</Text>
@@ -160,12 +160,8 @@ export default function Home() {
                   </Text>
                 </View>
                 <View style={styles.amountWrapper}>
-                  <Text style={styles.amount}>
-                    {invoice.currency}
-                  </Text>
-                  <Text style={styles.amount}>
-                    {invoice.total.toFixed(2)}
-                  </Text>
+                  <Text style={styles.amount}>{invoice.currency}</Text>
+                  <Text style={styles.amount}>{invoice.total.toFixed(2)}</Text>
                 </View>
               </View>
             </Pressable>
@@ -176,20 +172,16 @@ export default function Home() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Recent Invoices</Text>
           {recentInvoices.map((invoice, index) => (
-            <View key={index} style={styles.listItem}>
-              <View>
+            <View key={index} style={[styles.listItem, styles.recentListItem]}>
+              <View style={styles.contentColumn}>
                 <Text style={styles.invoiceId}>#{invoice.invoice_id}</Text>
                 <Text style={styles.date}>
                   {new Date(invoice.invoice_date).toLocaleDateString()}
                 </Text>
               </View>
               <View style={styles.amountWrapper}>
-                <Text style={styles.amount}>
-                  {invoice.currency}
-                </Text>
-                <Text style={styles.amount}>
-                  {invoice.total.toFixed(2)}
-                </Text>
+                <Text style={styles.amount}>{invoice.currency}</Text>
+                <Text style={styles.amount}>{invoice.total.toFixed(2)}</Text>
               </View>
             </View>
           ))}
@@ -221,12 +213,13 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flex: 1,
+    paddingBottom: 64
   },
   summaryContainer: {
     flexDirection: 'row',
     gap: 16,
     padding: 16,
-    marginTop: 100,
+    marginTop: 32,
   },
   summaryCard: {
     flex: 1,
@@ -241,7 +234,7 @@ const styles = StyleSheet.create({
   cardContent: {
     padding: 20,
     height: 140,
-    justifyContent: 'space-between',
+    justifyContent: 'center',
   },
   cardPrimary: {
     backgroundColor: '#4f46e5',
@@ -277,15 +270,18 @@ const styles = StyleSheet.create({
   listItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     padding: 12,
     backgroundColor: '#f8fafc',
     borderRadius: 12,
   },
+  recentListItem: {
+    marginBottom: 12,
+  },
   listItemLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    marginBottom: 4,
   },
   amountContainer: {
     flexDirection: 'row',
@@ -294,11 +290,11 @@ const styles = StyleSheet.create({
   },
   summaryLabel: {
     color: 'rgba(255,255,255,0.8)',
-    fontSize: 16,
+    fontSize: 18,
   },
   summaryValue: {
     color: 'white',
-    fontSize: 28,
+    fontSize: 16,
     fontWeight: 'bold',
   },
   sectionTitle: {
@@ -324,11 +320,16 @@ const styles = StyleSheet.create({
   },
   amountWrapper: {
     alignItems: 'flex-end',
+    gap: 4,
   },
   amount: {
     fontSize: 16, // reduced from 18
     fontWeight: '600',
     color: '#6366f1',
     lineHeight: 22, // reduced from 24
+  },
+  contentColumn: {
+    flex: 1,
+    gap: 4,
   },
 });

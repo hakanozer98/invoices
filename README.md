@@ -1,50 +1,38 @@
-# Welcome to your Expo app 👋
+# Invoice Manager App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A modern, mobile-first invoice management application built with Expo and React Native. This app helps to create, manage, and track invoices efficiently.
 
-## Get started
+## Features
 
-1. Install dependencies
+- 📱 Cross-platform support (iOS, Android)
+- 📸 Scan invoices using device camera
+- 📊 Dashboard with financial insights
+- 💰 Multi-currency support
+- 📅 Due date tracking
+- 🔐 Secure authentication with Supabase
+- 💾 Cloud storage for invoices
 
-   ```bash
-   npm install
-   ```
+## Tech Stack
 
-2. Start the app
+- Expo Framework
+- React Native
+- TypeScript
+- Supabase (Backend & Authentication)
+- Azure Document Intelligence (Invoice scanning)
+- Expo Router (File-based routing)
 
-   ```bash
-    npx expo start
-   ```
+## Prerequisites
 
-In the output, you'll find options to open the app in a
+- Node.js (v16 or higher)
+- npm or yarn
+- Expo CLI
+- Supabase account
+- Azure account (for document scanning features)
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Environment Setup
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+1. Create a `.env` file in the root directory:
+- EXPO_PUBLIC_SUPABASE_URL=your_supabase_url
+- EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+- EXPO_PUBLIC_DI_ENDPOINT=your_azure_document_intelligence_endpoint
+- EXPO_PUBLIC_DI_KEY=your_azure_document_intelligence_key
